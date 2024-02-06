@@ -1,0 +1,36 @@
+{% extends 'base.html' %} {% block body %}
+<section class="text-gray-600 body-font" >
+  <div
+    class="container mx-auto flex px-5 py-1 items-center justify-center flex-col" >
+    <section class="bg-white dark:bg-gray-900" style="background: linear-gradient(to bottom, #ffcccc5b, #6699ff7c); margin: 0; padding: 20px; font-family: Arial, sans-serif; color: #fff;">
+      <div class="py-8 px-4 mx-auto max-w-screen-xl text-center lg:py-16">
+        <h3
+          class="text-purple-600 text-2xl font-bold">DreamXpert</h3>
+        <h1
+          class="mb-4 text-7xl font-extrabold tracking-tight text-transparent bg-gradient-to-r from-purple-600 bg-clip-text dark:text-white">
+          Let's Make Your Team
+        </h1>
+        <p
+          class="mb-7 font-normal text-2xl sm:px-16 lg:px-48 text-purple-400">
+          Crafting a winning team is an art that blends strategy, skill, and
+          synergy. With our cutting-edge algorithm, we analyze player
+          statistics, performance history, and tactical strengths to curate the
+          optimal lineup for your upcoming matches. Dive into a realm where data
+          meets intuition, and let us empower your team to conquer the field.
+          Unleash the potential of your squad and embark on a journey towards
+          victory!
+        </p>
+        <div
+          class="flex flex-col space-y-4 sm:flex-row sm:justify-center sm:space-y-0">
+          <a href="/getstarted"
+            class="bg-purple-600 inline-flex justify-center items-center py-1 px-5 text-base font-medium text-center text-white rounded-lg">
+            <button class="text-white font-bold py-2 px-4 rounded">
+              Get Started
+            </button>
+          </a>
+        </div>
+      </div>
+    </section>
+  </div>
+</section>
+{% endblock body %}

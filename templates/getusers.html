@@ -1,0 +1,27 @@
+{% extends 'base.html' %} {% block body %}
+<h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-center text-gray-900 py-8">
+  Your <span class="text-purple-600">Users</span>
+</h1>
+ <table class="table-auto mx-auto mt-8 border border-gray-300 shadow-md">
+    <thead>
+        <tr class="bg-gray-100">
+            <th class="px-4 py-2">Name</th>
+            <th class="px-4 py-2">Email</th>
+            <th class="px-4 py-2">Password</th>
+            <th class="px-4 py-2">Username</th>
+            <!-- Add other table headers as needed for your data -->
+        </tr>
+    </thead>
+    <tbody>
+        {% for user in all_documents %}
+            <tr class="hover:bg-gray-50">
+                <td class="border px-4 py-2">{{ user.name }}</td>
+                <td class="border px-4 py-2">{{ user.email }}</td>
+                <td class="border px-4 py-2">{{ user.password }}</td>
+                <td class="border px-4 py-2">{{ user.username }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<div style="margin-top: 140px;"></div>
+{% endblock body %}

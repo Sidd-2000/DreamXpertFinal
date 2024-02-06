@@ -1,0 +1,69 @@
+{% extends 'base.html' %} {% block body %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.0/flowbite.min.js"></script>
+<section class="text-gray-600 body-font">
+  <div class="container px-5 py-24 mx-auto">
+    <div class="flex flex-col text-center w-full mb-12">
+      <h1 class="sm:text-3xl text-2xl font-medium title-font mb-4 text-gray-900">
+        Choose Teams for IPL
+      </h1>
+      <p class="lg:w-2/3 mx-auto leading-relaxed text-base">
+        Strategize your IPL dream team! Select from a pool of top players, analyze their performance, and compose a winning squad ready to excel in the fast-paced 20-over format.
+      </p>
+    </div>
+    <form method="POST" action="/predictIPL">
+      <div
+        class="flex py-4 lg:w-2/3 w-full sm:flex-row flex-col mx-auto px-8 sm:space-x-4 sm:space-y-0 space-y-4 sm:px-0 items-end">
+        <div class="relative flex-grow w-full">
+          <label for="team1" class="block mb-2 text-sm mx-2 font-medium text-gray-900 dark:text-white">Select an
+            option</label>
+          <select id="team1" name="selected_team1"
+            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+            <option selected>Choose Team1</option>
+            {% for name in cleaned_headers %}
+            <option value="{{ name }}">{{ name }}</option>
+            {% endfor %}
+          </select>
+          <h1>{{select1}}</h1>
+        </div>
+        <div class="relative flex-grow w-full">
+          <label for="team2" class="block mb-2 mx-2 text-sm font-medium text-gray-900 dark:text-white">Select an
+            option</label>
+          <select id="team2" name="selected_team2"
+            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+            <option selected>Choose Team2</option>
+            {% for name in cleaned_headers %}
+            <option value="{{ name }}">{{ name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <a href="/predictIPL"><button
+            class="text-white bg-purple-600 border-0 py-2 px-8 focus:outline-none hover:bg-purple-700 rounded text-lg" id="odisubmit">
+            Next
+          </button></a>
+      </div>
+    </form>
+  </div>
+</section>
+<div style="margin-top: 110px;"></div>
+<script>
+  $(document).ready(function() {
+    // Attach change event listener to selectBox1
+    $('#team1').change(function() {
+      // Get the selected option value
+      var selectedValue = $(this).val();
+
+      // Remove the selected option from selectBox2
+      $('#team2 option[value="' + selectedValue + '"]').remove();
+    });
+
+    // Attach change event listener to selectBox2
+    $('#team2').change(function() {
+      // Get the selected option value
+      var selectedValue = $(this).val();
+
+      // Remove the selected option from selectBox1
+      $('#team1 option[value="' + selectedValue + '"]').remove();
+    });
+  });
+</script>
+{% endblock body %}
