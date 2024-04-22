@@ -27,12 +27,10 @@ for i in players:
     print(k)
     k += 1
     print(i)
-    # Accessing the web page for the current player's stats
-    if i != 'MAYANK YADAV' and i != 'SUYASH SHARMA' and i !='PRASHANT SOLANKI' and i != 'AKASH MADHWAL' and i != 'HIMANSHU SHARMA' and i != 'RAJAN KUMAR' and i != 'NITISH KUMAR REDDY' and i != 'RAJVARDHAN HANGARGEKAR':
+    if i!='MAYANK YADAV' and i != 'KWENA MAPHAKA' and i !='SUYASH SHARMA' and i !='PRASHANT SOLANKI' and i != 'HIMANSHU SHARMA' and i != 'RAJAN KUMAR' and i != 'RAJVARDHAN HANGARGEKAR':
         driver.get(
             "http://www.cricmetric.com/playerstats.py?player={}&role=all&format=TWENTY20&groupby=match&playerStatsFilters=on&start_date=2015-01-01&end_date=2024-10-07&start_over=0&end_over=9999".format(
                 i.replace(' ', '+')))
-
         driver.maximize_window()
         driver.execute_script("window.scrollTo(0, document.body.scrollHeight)")
         time.sleep(1)

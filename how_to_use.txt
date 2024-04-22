@@ -1,0 +1,4 @@
+step 1:run the player scrappin.py files to get the latest squad
+step 2:Run the data_scrapping.py files to get the data of the latest squad players
+step 3:Run the playersRolewithImage.py files to get the image and the roles of the players
+step 4:Now run the app.py file to get the latest predictions

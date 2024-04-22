@@ -30,6 +30,7 @@ for url, team in zip(web, teams):
 
     # Modified XPath to select the correct table
     table = driver.find_element(By.XPATH, "/html/body/div[3]/div/div")
+    print(table)
 
     name = []
     role = []
@@ -63,6 +64,7 @@ for url, team in zip(web, teams):
 
     # Append the DataFrame to the data_list
     data_list.append(team_df)
+    print(teams)
 
 # Concatenate all team DataFrames into a single DataFrame
 final_data = pd.concat(data_list, axis=1)

@@ -1,5 +1,7 @@
 import time
 from flask import Flask, render_template, request, session, redirect, url_for, jsonify
+from flask_bcrypt import Bcrypt
+import re
 import pandas as pd
 import numpy as np
 from flask_pymongo import PyMongo
@@ -1177,10 +1179,15 @@ def playing_eleven_T20():
 
 app = Flask(__name__)
 app.secret_key = 'À²vÍ↑ÌZ↓f£fè▬íÐàÀà'
-app.config["MONGO_URI"] = "mongodb+srv://<username>:<password>@cluster0.6kifhhz.mongodb.net/Login_details"
+app.config["MONGO_URI"] = "mongodb+srv://Siddharth:f767Z1XZ17SJCjwm@cluster0.6kifhhz.mongodb.net/Login_details"
 mongo = PyMongo(app)
 db = mongo.db
+bcrypt = Bcrypt(app)
 
+# password f767Z1XZ17SJCjwm
+password_regex = r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,}$'
+def is_valid_password(password):
+    return re.match(password_regex, password) is not None
 def login_required(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
@@ -1204,11 +1211,13 @@ def login():
         email = request.form['email']
         # print(username,password,email)
         collections = db.test_collection
-        user = collections.find_one({'username': username, 'password': password, 'email': email})
+        user = collections.find_one({'username': username, 'email': email})
 
-        if user:
+        if user and bcrypt.check_password_hash(user['password'], password):
+            # Password is correct
             session['logged_in'] = True
             session['username'] = username
+            session['password'] = True
             return render_template('home.html', username=username)
         else:
             valid = 'Please enter correct credentials'
@@ -1232,8 +1241,10 @@ def signup():
         password = request.form['password']
         cpassword = request.form['cpassword']
 
-        if len(password) < 8:
-            err += 'Password must be at least 8 characters'
+        if not is_valid_password(password):
+            err += 'Password must be at least 8 characters long and contain at least one letter and one digit.'
+            return render_template('signup.html', err=err)
+
 
         if password != cpassword:
             err += 'Please enter correct password'
@@ -1244,7 +1255,7 @@ def signup():
             'name': name,
             'email': email,
             'username': username,
-            'password': password
+            'password': bcrypt.generate_password_hash(password).decode('utf-8')
         }
         if err != '':
             return redirect(url_for('signup', err=err))
@@ -1388,7 +1399,7 @@ def ipl():
 @app.route('/predictIPL', methods=['GET', 'POST'])
 async def predictIPL():
     if request.method == 'POST':
-        # print('posted request')
+        print('posted request')
         selected_team1 = request.form.get('selected_team1')
         selected_team2 = request.form.get('selected_team2')
         team1_data = IPLdata.loc[:, (selected_team1, ["Name", "Role", "Image"])]
@@ -1501,4 +1512,4 @@ def predictedT20():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)
