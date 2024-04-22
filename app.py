@@ -33,293 +33,8 @@ def predict_and_result_IPL(combined_players):
     models = pd.DataFrame()
     latest = pd.DataFrame()
     players_list = combined_players
-    # print('This is player list',players_list)
     for player_name in players_list:
-        # print('player name player',player_name)
-        print(player_name)
-        player_data = final_data[final_data['Player'] == player_name]
-        # print('Data of the player is', player_data)
-        # print("\n", player_data['Player'])
-        if len(player_data) > 2:
-            player_new = player_data.dropna()
-            # Predict next runs
-            X_runs = player_new[player_new.columns[2:11]]
-            y_runs = player_new[player_new.columns[21:22]]
-            X_train_runs, X_test_runs, y_train_runs, y_test_runs = train_test_split(X_runs, y_runs, random_state=123)
-            ridge_runs = pd.DataFrame()
-
-            # Iterate over a range of alpha values
-            for j in range(0, 101):
-                points_runs = linear_model.Ridge(alpha=j).fit(X_train_runs, y_train_runs)
-                ridge_df_runs = pd.DataFrame(
-                    {'Alpha': pd.Series(j), 'Train': pd.Series(points_runs.score(X_train_runs, y_train_runs)),
-                     'Test': pd.Series(points_runs.score(X_test_runs, y_test_runs))})
-                ridge_runs = ridge_runs._append(ridge_df_runs)
-
-            # Calculate average score
-            ridge_runs['Average'] = ridge_runs[['Train', 'Test']].mean(axis=1)
-
-            try:
-                # Find the alpha value with the highest average score
-                k_runs = ridge_runs[ridge_runs['Average'] == ridge_runs['Average'].max()]['Alpha'][0]
-                k_runs = k_runs.head(1)[0]
-            except:
-                k_runs = ridge_runs[ridge_runs['Average'] == ridge_runs['Average'].max()]['Alpha'][0]
-
-            # Train the model with the best alpha value
-            next_runs = linear_model.Ridge(alpha=k_runs * 10)
-            next_runs.fit(X_train_runs, y_train_runs)
-            sd_next_runs = stdev(X_train_runs['Runs Scored'].astype('float'))
-
-            # Predict next balls
-            X_balls = player_new[player_new.columns[2:11]]
-            y_balls = player_new[player_new.columns[22:23]]
-            X_train_balls, X_test_balls, y_train_balls, y_test_balls = train_test_split(X_balls, y_balls, test_size=0.2,
-                                                                                        random_state=123)
-            ridge_balls = pd.DataFrame()
-
-            # Iterate over a range of alpha values
-            for j in range(0, 101):
-                points_balls = linear_model.Ridge(alpha=j).fit(X_train_balls, y_train_balls)
-                ridge_df_balls = pd.DataFrame(
-                    {'Alpha': pd.Series(j), 'Train': pd.Series(points_balls.score(X_train_balls, y_train_balls)),
-                     'Test': pd.Series(points_balls.score(X_test_balls, y_test_balls))})
-                ridge_balls = ridge_balls._append(ridge_df_balls)
-
-            # Calculate average score
-            ridge_balls['Average'] = ridge_balls[['Train', 'Test']].mean(axis=1)
-
-            try:
-                # Find the alpha value with the highest average score
-                k_balls = ridge_balls[ridge_balls['Average'] == ridge_balls['Average'].max()]['Alpha'][0]
-                k_balls = k_balls.head(1)[0]
-            except:
-                k_balls = ridge_balls[ridge_balls['Average'] == ridge_balls['Average'].max()]['Alpha'][0]
-
-            # Train the model with the best alpha value
-            next_balls = linear_model.Ridge(alpha=k_balls * 10)
-            next_balls.fit(X_train_balls, y_train_balls)
-            sd_next_balls = stdev(X_train_balls['Balls Played'].astype('float'))
-
-            # Predict next overs
-            X_overs = player_new[player_new.columns[11:21]]
-            y_overs = player_new[player_new.columns[23:24]]
-            X_train_overs, X_test_overs, y_train_overs, y_test_overs = train_test_split(X_overs, y_overs, test_size=0.2,
-                                                                                        random_state=123)
-            ridge_overs = pd.DataFrame()
-
-            # Iterate over a range of alpha values
-            for j in range(0, 101):
-                points_overs = linear_model.Ridge(alpha=j).fit(X_train_overs, y_train_overs)
-                ridge_df_overs = pd.DataFrame(
-                    {'Alpha': pd.Series(j), 'Train': pd.Series(points_overs.score(X_train_overs, y_train_overs)),
-                     'Test': pd.Series(points_overs.score(X_test_overs, y_test_overs))})
-                ridge_overs = ridge_overs._append(ridge_df_overs)
-
-            # Calculate average score
-            ridge_overs['Average'] = ridge_overs[['Train', 'Test']].mean(axis=1)
-
-            try:
-                # Find the alpha value with the highest average score
-                k_overs = ridge_overs[ridge_overs['Average'] == ridge_overs['Average'].max()]['Alpha'][0]
-                k_overs = k_overs.head(1)[0]
-            except:
-                k_overs = ridge_overs[ridge_overs['Average'] == ridge_overs['Average'].max()]['Alpha'][0]
-
-            # Train the model with the best alpha value
-            next_overs = linear_model.Ridge(alpha=k_overs * 10)
-            next_overs.fit(X_train_overs, y_train_overs)
-            sd_next_overs = stdev(X_train_overs['Overs Bowled'].astype('float'))
-
-            # Predict next runs given
-            X_runs_given = player_new[player_new.columns[11:21]]
-            y_runs_given = player_new[player_new.columns[24:25]]
-            X_train_runs_given, X_test_runs_given, y_train_runs_given, y_test_runs_given = train_test_split(
-                X_runs_given,
-                y_runs_given,
-                test_size=0.2,
-                random_state=123)
-            ridge_runs_given = pd.DataFrame()
-
-            # Iterate over a range of alpha values
-            for j in range(0, 101):
-                points_runs_given = linear_model.Ridge(alpha=j).fit(X_train_runs_given, y_train_runs_given)
-                ridge_df_runs_given = pd.DataFrame({'Alpha': pd.Series(j), 'Train': pd.Series(
-                    points_runs_given.score(X_train_runs_given, y_train_runs_given)), 'Test': pd.Series(
-                    points_runs_given.score(X_test_runs_given, y_test_runs_given))})
-                ridge_runs_given = ridge_runs_given._append(ridge_df_runs_given)
-
-            # Calculate average score
-            ridge_runs_given['Average'] = ridge_runs_given[['Train', 'Test']].mean(axis=1)
-
-            try:
-                # Find the alpha value with the highest average score
-                k_runs_given = \
-                    ridge_runs_given[ridge_runs_given['Average'] == ridge_runs_given['Average'].max()]['Alpha'][0]
-                k_runs_given = k_runs_given.head(1)[0]
-            except:
-                k_runs_given = \
-                    ridge_runs_given[ridge_runs_given['Average'] == ridge_runs_given['Average'].max()]['Alpha'][0]
-
-            # Train the model with the best alpha value
-            next_runs_given = linear_model.Ridge(alpha=k_runs_given * 10)
-            next_runs_given.fit(X_train_runs_given, y_train_runs_given)
-            sd_next_runs_given = stdev(X_train_runs_given['Runs Given'].astype('float'))
-
-            X_wkts = player_new[player_new.columns[11:21]]
-            y_wkts = player_new[player_new.columns[25:26]]
-            X_train_wkts, X_test_wkts, y_train_wkts, y_test_wkts = train_test_split(X_wkts, y_wkts, test_size=0.2,
-                                                                                    random_state=123)
-            ridge_wkts = pd.DataFrame()
-            # Iterate over a range of alpha values
-            for j in range(0, 101):
-                points_wkts = linear_model.Ridge(alpha=j).fit(X_train_wkts, y_train_wkts)
-                ridge_df_wkts = pd.DataFrame(
-                    {'Alpha': pd.Series(j), 'Train': pd.Series(points_wkts.score(X_train_wkts, y_train_wkts)),
-                     'Test': pd.Series(points_wkts.score(X_test_wkts, y_test_wkts))})
-                ridge_wkts = ridge_wkts._append(ridge_df_wkts)
-
-            # Calculate average score
-            ridge_wkts['Average'] = ridge_wkts[['Train', 'Test']].mean(axis=1)
-            try:
-                k_wkts = ridge_wkts[ridge_wkts['Average'] == ridge_wkts['Average'].max()]['Alpha'][0]
-                k_wkts = k_wkts.head(1)[0]
-            except:
-                k_wkts = ridge_wkts[ridge_wkts['Average'] == ridge_wkts['Average'].max()]['Alpha'][0]
-            #
-            # Train the model with the best alpha value
-            next_wkts = linear_model.Ridge(alpha=k_runs_given * 10)
-            next_wkts.fit(X_train_wkts, y_train_wkts)
-            sd_next_wkts = stdev(X_train_wkts['Wickets Taken'].astype('float'))
-            latest = player_data.groupby('Player').tail(1)
-
-            latest.loc[:, 'next_runs'] = next_runs.predict(latest[latest.columns[2:11]])
-            latest.loc[:, 'next_balls'] = next_balls.predict(latest[latest.columns[2:11]])
-            latest.loc[:, 'next_overs'] = next_overs.predict(latest[latest.columns[11:21]])
-            latest.loc[:, 'next_runs_given'] = next_runs_given.predict(latest[latest.columns[11:21]])
-            latest.loc[:, 'next_wkts'] = next_wkts.predict(latest[latest.columns[11:21]])
-
-            latest = latest.copy()
-            latest.loc[:, 'next_runs_ll_95'], latest.loc[:, 'next_runs_ul_95'] = latest[
-                                                                                     'next_runs'] - scipy.stats.norm.ppf(
-                .95) * (sd_next_runs / math.sqrt(len(X_train_runs))), latest['next_runs'] + scipy.stats.norm.ppf(
-                .95) * (sd_next_runs / math.sqrt(len(X_train_runs)))
-            latest.loc[:, 'next_balls_ll_95'], latest.loc[:, 'next_balls_ul_95'] = latest[
-                                                                                       'next_balls'] - scipy.stats.norm.ppf(
-                .95) * (sd_next_balls / math.sqrt(len(X_train_balls))), latest['next_balls'] + scipy.stats.norm.ppf(
-                .95) * (sd_next_balls / math.sqrt(len(X_train_balls)))
-            latest.loc[:, 'next_overs_ll_95'], latest.loc[:, 'next_overs_ul_95'] = latest[
-                                                                                       'next_overs'] - scipy.stats.norm.ppf(
-                .95) * (sd_next_overs / math.sqrt(len(X_train_overs))), latest['next_overs'] + scipy.stats.norm.ppf(
-                .95) * (sd_next_overs / math.sqrt(len(X_train_overs)))
-            latest.loc[:, 'next_runs_given_ll_95'], latest.loc[:, 'next_runs_given_ul_95'] = latest[
-                                                                                                 'next_runs_given'] - scipy.stats.norm.ppf(
-                .95) * (sd_next_runs_given / math.sqrt(len(X_train_runs_given))), latest[
-                                                                                                 'next_runs_given'] + scipy.stats.norm.ppf(
-                .95) * (sd_next_runs_given / math.sqrt(len(X_train_runs_given)))
-            latest.loc[:, 'next_wkts_ll_95'], latest.loc[:, 'next_wkts_ul_95'] = latest[
-                                                                                     'next_wkts'] - scipy.stats.norm.ppf(
-                .95) * (sd_next_wkts / math.sqrt(len(X_train_wkts))), latest['next_wkts'] + scipy.stats.norm.ppf(
-                .95) * (sd_next_wkts / math.sqrt(len(X_train_wkts)))
-            models = models._append(latest)
-
-    models['next_runs_given'] = np.where(models['next_overs'] > 4, models['next_runs_given'] / models['next_overs'] * 4,models['next_runs_given'])
-    models['next_runs_given_ll_95'] = np.where(models['next_overs'] > 4,models['next_runs_given_ll_95'] / models['next_overs'] * 4,models['next_runs_given_ll_95'])
-    models['next_runs_given_ul_95'] = np.where(models['next_overs'] > 4,models['next_runs_given_ul_95'] / models['next_overs'] * 4,models['next_runs_given_ul_95'])
-
-    # Limiting next_overs to a maximum of 4
-    models['next_overs'] = np.where(models['next_overs'] > 4, 4, models['next_overs'])
-    models['next_overs_ll_95'] = np.where(models['next_overs_ll_95'] > 4, 4, models['next_overs_ll_95'])
-    models['next_overs_ul_95'] = np.where(models['next_overs_ul_95'] > 4, 4, models['next_overs_ul_95'])
-
-    # Adjusting next_runs based on next_balls
-    models['next_runs'] = np.where(models['next_balls'] < 0, 0, models['next_runs'])
-    models['next_runs_ll_95'] = np.where(models['next_balls'] < 0, 0, models['next_runs_ll_95'])
-    models['next_runs_ul_95'] = np.where(models['next_balls'] < 0, 0, models['next_runs_ul_95'])
-
-    # Setting next_runs to a minimum of 1
-    models['next_runs'] = np.where(models['next_runs'] < 0, 1, models['next_runs'])
-    models['next_runs_ll_95'] = np.where(models['next_runs_ll_95'] < 0, 1, models['next_runs_ll_95'])
-    models['next_runs_ul_95'] = np.where(models['next_runs_ul_95'] < 0, 1, models['next_runs_ul_95'])
-
-    # Adjusting next_runs based on next_balls if next_balls > 100
-    models['next_runs'] = np.where(models['next_balls'] > 100, models['next_runs'] / models['next_balls'] * 5,
-                                   models['next_runs'])
-    models['next_runs_ll_95'] = np.where(models['next_balls'] > 100,
-                                         models['next_runs_ll_95'] / models['next_balls'] * 5,
-                                         models['next_runs_ll_95'])
-    models['next_runs_ul_95'] = np.where(models['next_balls'] > 100,
-                                         models['next_runs_ul_95'] / models['next_balls'] * 5,
-                                         models['next_runs_ul_95'])
-
-    # Limiting next_balls to a maximum of 5
-    models['next_balls'] = np.where(models['next_balls'] > 100, 5, models['next_balls'])
-    models['next_balls_ll_95'] = np.where(models['next_balls_ll_95'] > 100, 5, models['next_balls_ll_95'])
-    models['next_balls_ul_95'] = np.where(models['next_balls_ul_95'] > 100, 5, models['next_balls_ul_95'])
-
-    # Setting next_balls to a minimum of 1
-    models['next_balls'] = np.where(models['next_balls'] < 0, 1, models['next_balls'])
-    models['next_balls_ll_95'] = np.where(models['next_balls_ll_95'] < 0, 1, models['next_balls_ll_95'])
-    models['next_balls_ul_95'] = np.where(models['next_balls_ul_95'] < 0, 1, models['next_balls_ul_95'])
-
-    # Setting next_wkts to a minimum of 1
-    models['next_wkts'] = np.where(models['next_wkts'] < 0, 0, models['next_wkts'])
-    models['next_wkts_ll_95'] = np.where(models['next_wkts_ll_95'] < 0, 1, models['next_wkts_ll_95'])
-    models['next_wkts_ul_95'] = np.where(models['next_wkts_ul_95'] < 0, 1, models['next_wkts_ul_95'])
-
-    # Rounding values to 0 decimal places
-    models['next_runs'] = round(models['next_runs'], 0)
-    models['next_runs_ll_95'] = round(models['next_runs_ll_95'], 0)
-    models['next_runs_ul_95'] = round(models['next_runs_ul_95'], 0)
-
-    models['next_balls'] = round(models['next_balls'], 0)
-    models['next_balls_ll_95'] = round(models['next_balls_ll_95'], 0)
-    models['next_balls_ul_95'] = round(models['next_balls_ul_95'], 0)
-
-    models['next_wkts'] = round(models['next_wkts'], 0)
-    models['next_wkts_ll_95'] = round(models['next_wkts_ll_95'], 0)
-    models['next_wkts_ul_95'] = round(models['next_wkts_ul_95'], 0)
-
-    models['next_runs_given'] = round(models['next_runs_given'], 0)
-    models['next_runs_given_ll_95'] = round(models['next_runs_given_ll_95'], 0)
-    models['next_runs_given_ul_95'] = round(models['next_runs_given_ul_95'], 0)
-
-    models['next_overs'] = round(models['next_overs'], 0)
-    models['next_overs_ll_95'] = round(models['next_overs_ll_95'], 0)
-    models['next_overs_ul_95'] = round(models['next_overs_ul_95'], 0)
-    models.to_excel('modelIPL.xlsx')
-    merged_df = pd.merge(models, playerData, on='Player', how='left')
-    print(merged_df.columns)
-    print(merged_df)
-    merged_df.to_excel('mergedIPL.xlsx')
-
-
-def playing_eleven_IPL():
-    merged_df = pd.read_excel('mergedIPL.xlsx')
-    batsman_data = merged_df[merged_df['Role'] == 'Batter']
-    bowler_data = merged_df[merged_df['Role'] == 'Bowler']
-    wicketK_data = merged_df[merged_df['Role'] == 'WK Keeper - Batter']
-    allrounder_data = merged_df[merged_df['Role'] == 'All-Rounder']
-
-    batsman = batsman_data.sort_values(by='next_runs', ascending=False).iloc[:5]
-    bowler = bowler_data.sort_values(by='next_wkts', ascending=False).iloc[:3]
-    allrounder = allrounder_data.sort_values(by=['next_wkts', 'next_runs'], ascending=[False, False]).iloc[:2]
-    if allrounder['next_runs'].iloc[0] == 0:
-        allrounder = allrounder_data.sort_values(by=['next_wkts', 'next_runs'], ascending=[False, False]).iloc[1:3]
-    wicketK = wicketK_data.sort_values(by='next_runs', ascending=False).iloc[:1]
-
-    playing_eleven = pd.concat([batsman, allrounder, wicketK, bowler])
-    return playing_eleven
-
-
-def predict_and_result_ODI(combined_players):
-    final_data = pd.read_excel("ODI_data_scrapped.xlsx")
-    playerData = pd.read_excel("ODIImage.xlsx")
-    models = pd.DataFrame()
-    latest = pd.DataFrame()
-    players_list = combined_players
-    for player_name in players_list:
-
+        # print(player_name)
         player_data = final_data[final_data['Player'] == player_name]
         if len(player_data) > 2:
             player_new = player_data.dropna()
@@ -500,7 +215,10 @@ def predict_and_result_ODI(combined_players):
                                                                                      'next_wkts'] - scipy.stats.norm.ppf(
                 .95) * (sd_next_wkts / math.sqrt(len(X_train_wkts))), latest['next_wkts'] + scipy.stats.norm.ppf(
                 .95) * (sd_next_wkts / math.sqrt(len(X_train_wkts)))
+            print(player_name)
             models = models._append(latest)
+            # print(models.columns)
+            # print(player_name, " is added")
 
     models['next_runs_given'] = np.where(models['next_overs'] > 4, models['next_runs_given'] / models['next_overs'] * 4,
                                          models['next_runs_given'])
@@ -512,34 +230,34 @@ def predict_and_result_ODI(combined_players):
                                                models['next_runs_given_ul_95'])
 
     # Limiting next_overs to a maximum of 4
-    models['next_overs'] = np.where(models['next_overs'] > 10, 10, models['next_overs'])
-    models['next_overs_ll_95'] = np.where(models['next_overs_ll_95'] > 10, 10, models['next_overs_ll_95'])
-    models['next_overs_ul_95'] = np.where(models['next_overs_ul_95'] > 10, 10, models['next_overs_ul_95'])
+    models['next_overs'] = np.where(models['next_overs'] > 4, 4, models['next_overs'])
+    models['next_overs_ll_95'] = np.where(models['next_overs_ll_95'] > 4, 4, models['next_overs_ll_95'])
+    models['next_overs_ul_95'] = np.where(models['next_overs_ul_95'] > 4, 4, models['next_overs_ul_95'])
 
     # Adjusting next_runs based on next_balls
-    models['next_runs'] = np.where(models['next_balls'] < 0, 0, models['next_runs'])
-    models['next_runs_ll_95'] = np.where(models['next_balls'] < 0, 0, models['next_runs_ll_95'])
-    models['next_runs_ul_95'] = np.where(models['next_balls'] < 0, 0, models['next_runs_ul_95'])
+    models['next_runs'] = np.where(models['next_balls'] < 0, 10, models['next_runs'])
+    models['next_runs_ll_95'] = np.where(models['next_balls'] < 0, 12, models['next_runs_ll_95'])
+    models['next_runs_ul_95'] = np.where(models['next_balls'] < 0, 14, models['next_runs_ul_95'])
 
     # Setting next_runs to a minimum of 1
-    models['next_runs'] = np.where(models['next_runs'] < 0, 1, models['next_runs'])
-    models['next_runs_ll_95'] = np.where(models['next_runs_ll_95'] < 0, 1, models['next_runs_ll_95'])
-    models['next_runs_ul_95'] = np.where(models['next_runs_ul_95'] < 0, 1, models['next_runs_ul_95'])
+    models['next_runs'] = np.where(models['next_runs'] < 0, 11, models['next_runs'])
+    models['next_runs_ll_95'] = np.where(models['next_runs_ll_95'] < 0, 12, models['next_runs_ll_95'])
+    models['next_runs_ul_95'] = np.where(models['next_runs_ul_95'] < 0, 13, models['next_runs_ul_95'])
 
     # Adjusting next_runs based on next_balls if next_balls > 100
-    models['next_runs'] = np.where(models['next_balls'] > 100, models['next_runs'] / models['next_balls'] * 5,
+    models['next_runs'] = np.where(models['next_balls'] > 24, models['next_runs'] / models['next_balls'] * 24,
                                    models['next_runs'])
-    models['next_runs_ll_95'] = np.where(models['next_balls'] > 100,
-                                         models['next_runs_ll_95'] / models['next_balls'] * 5,
+    models['next_runs_ll_95'] = np.where(models['next_balls'] > 24,
+                                         models['next_runs_ll_95'] / models['next_balls'] * 24,
                                          models['next_runs_ll_95'])
-    models['next_runs_ul_95'] = np.where(models['next_balls'] > 100,
-                                         models['next_runs_ul_95'] / models['next_balls'] * 5,
+    models['next_runs_ul_95'] = np.where(models['next_balls'] > 24,
+                                         models['next_runs_ul_95'] / models['next_balls'] * 24,
                                          models['next_runs_ul_95'])
 
     # Limiting next_balls to a maximum of 5
-    models['next_balls'] = np.where(models['next_balls'] > 100, 5, models['next_balls'])
-    models['next_balls_ll_95'] = np.where(models['next_balls_ll_95'] > 100, 5, models['next_balls_ll_95'])
-    models['next_balls_ul_95'] = np.where(models['next_balls_ul_95'] > 100, 5, models['next_balls_ul_95'])
+    models['next_balls'] = np.where(models['next_balls'] > 24, 24, models['next_balls'])
+    models['next_balls_ll_95'] = np.where(models['next_balls_ll_95'] > 24, 24, models['next_balls_ll_95'])
+    models['next_balls_ul_95'] = np.where(models['next_balls_ul_95'] > 24, 24, models['next_balls_ul_95'])
 
     # Setting next_balls to a minimum of 1
     models['next_balls'] = np.where(models['next_balls'] < 0, 1, models['next_balls'])
@@ -548,10 +266,10 @@ def predict_and_result_ODI(combined_players):
 
     # Setting next_wkts to a minimum of 1
     models['next_wkts'] = np.where(models['next_wkts'] < 0, 0, models['next_wkts'])
-    models['next_wkts_ll_95'] = np.where(models['next_wkts_ll_95'] < 0, 1, models['next_wkts_ll_95'])
-    models['next_wkts_ul_95'] = np.where(models['next_wkts_ul_95'] < 0, 1, models['next_wkts_ul_95'])
+    models['next_wkts_ll_95'] = np.where(models['next_wkts_ll_95'] < 0, 0, models['next_wkts_ll_95'])
+    models['next_wkts_ul_95'] = np.where(models['next_wkts_ul_95'] < 0, 0, models['next_wkts_ul_95'])
 
-    # Rounding values to 0 decimal places
+
     models['next_runs'] = round(models['next_runs'], 0)
     models['next_runs_ll_95'] = round(models['next_runs_ll_95'], 0)
     models['next_runs_ul_95'] = round(models['next_runs_ul_95'], 0)
@@ -571,11 +289,286 @@ def predict_and_result_ODI(combined_players):
     models['next_overs'] = round(models['next_overs'], 0)
     models['next_overs_ll_95'] = round(models['next_overs_ll_95'], 0)
     models['next_overs_ul_95'] = round(models['next_overs_ul_95'], 0)
+    models.to_excel('modelIPL.xlsx')
+    merged_df = pd.merge(models, playerData, on='Player', how='left')
+    merged_df.to_excel('mergedIPL.xlsx')
+    # print('successfully done')
+def playing_eleven_IPL():
+    merged_df = pd.read_excel('mergedIPL.xlsx')
+    batsman_data = merged_df[merged_df['Role'] == 'Batter']
+    bowler_data = merged_df[merged_df['Role'] == 'Bowler']
+    wicketK_data = merged_df[merged_df['Role'] == 'WK Keeper - Batter']
+    allrounder_data = merged_df[merged_df['Role'] == 'All-Rounder']
+
+    batsman = batsman_data.sort_values(by='next_runs', ascending=False).iloc[:5]
+    bowler = bowler_data.sort_values(by='next_wkts', ascending=False).iloc[:3]
+    allrounder = allrounder_data.sort_values(by=['next_wkts', 'next_runs'], ascending=[False, False]).iloc[:2]
+    if allrounder['next_runs'].iloc[0] == 0:
+        allrounder = allrounder_data.sort_values(by=['next_wkts', 'next_runs'], ascending=[False, False]).iloc[1:3]
+    wicketK = wicketK_data.sort_values(by='next_runs', ascending=False).iloc[:1]
+
+    playing_eleven = pd.concat([batsman, allrounder, wicketK, bowler])
+    return playing_eleven
+def predict_and_result_ODI(combined_players):
+    final_data = pd.read_excel("ODI_data_scrapped.xlsx")
+    playerData = pd.read_excel("ODIImage.xlsx")
+    models = pd.DataFrame()
+    latest = pd.DataFrame()
+    players_list = combined_players
+    for player_name in players_list:
+
+        player_data = final_data[final_data['Player'] == player_name]
+        print(player_name)
+        if len(player_data) > 2:
+            player_new = player_data.dropna()
+            X_runs = player_new[player_new.columns[2:11]]
+            y_runs = player_new[player_new.columns[21:22]]
+            X_train_runs, X_test_runs, y_train_runs, y_test_runs = train_test_split(X_runs, y_runs, random_state=123)
+            ridge_runs = pd.DataFrame()
+
+            # Iterate over a range of alpha values
+            for j in range(0, 101):
+                points_runs = linear_model.Ridge(alpha=j).fit(X_train_runs, y_train_runs)
+                ridge_df_runs = pd.DataFrame(
+                    {'Alpha': pd.Series(j), 'Train': pd.Series(points_runs.score(X_train_runs, y_train_runs)),
+                     'Test': pd.Series(points_runs.score(X_test_runs, y_test_runs))})
+                ridge_runs = ridge_runs._append(ridge_df_runs)
+            # print(ridge_runs)
+            # Calculate average score
+            ridge_runs['Average'] = ridge_runs[['Train', 'Test']].mean(axis=1)
+
+            ridge_runs.sort_values(by='Average', ascending=False, inplace=True)
+            k_runs = ridge_runs.head(1)['Alpha'].values[0]
+
+            # Train the model with the best alpha value
+            next_runs = linear_model.Ridge(alpha=k_runs * 10)
+            next_runs.fit(X_train_runs, y_train_runs)
+            if len(X_train_runs['Runs Scored']) > 1:
+                sd_next_runs = stdev(X_train_runs['Runs Scored'].astype('float'))
+            else:
+                # Handle empty or single-element case (assign default value, skip, etc.)
+                sd_next_runs = 0.0
+
+            # Predict next balls
+            X_balls = player_new[player_new.columns[2:11]]
+            y_balls = player_new[player_new.columns[22:23]]
+            X_train_balls, X_test_balls, y_train_balls, y_test_balls = train_test_split(X_balls, y_balls, test_size=0.2,
+                                                                                        random_state=123)
+            ridge_balls = pd.DataFrame()
+
+            # Iterate over a range of alpha values
+            for j in range(0, 101):
+                points_balls = linear_model.Ridge(alpha=j).fit(X_train_balls, y_train_balls)
+                ridge_df_balls = pd.DataFrame(
+                    {'Alpha': pd.Series(j), 'Train': pd.Series(points_balls.score(X_train_balls, y_train_balls)),
+                     'Test': pd.Series(points_balls.score(X_test_balls, y_test_balls))})
+                ridge_balls = ridge_balls._append(ridge_df_balls)
+
+            # Calculate average score
+            ridge_balls['Average'] = ridge_balls[['Train', 'Test']].mean(axis=1)
+
+            ridge_balls.sort_values(by='Average', ascending=False, inplace=True)
+            k_balls = ridge_balls.head(1)['Alpha'].values[0]
+
+            # Train the model with the best alpha value
+            next_balls = linear_model.Ridge(alpha=k_balls * 10)
+            next_balls.fit(X_train_balls, y_train_balls)
+            if len(X_train_balls['Balls Played']) > 1:
+                sd_next_balls = stdev(X_train_balls['Balls Played'].astype('float'))
+            else:
+                sd_next_balls = 0.0
+
+            # Predict next overs
+            X_overs = player_new[player_new.columns[11:21]]
+            y_overs = player_new[player_new.columns[23:24]]
+            X_train_overs, X_test_overs, y_train_overs, y_test_overs = train_test_split(X_overs, y_overs, test_size=0.2,
+                                                                                        random_state=123)
+            ridge_overs = pd.DataFrame()
+
+            # Iterate over a range of alpha values
+            for j in range(0, 101):
+                points_overs = linear_model.Ridge(alpha=j).fit(X_train_overs, y_train_overs)
+                ridge_df_overs = pd.DataFrame(
+                    {'Alpha': pd.Series(j), 'Train': pd.Series(points_overs.score(X_train_overs, y_train_overs)),
+                     'Test': pd.Series(points_overs.score(X_test_overs, y_test_overs))})
+                ridge_overs = ridge_overs._append(ridge_df_overs)
+
+            # Calculate average score
+            ridge_overs['Average'] = ridge_overs[['Train', 'Test']].mean(axis=1)
+
+            ridge_overs.sort_values(by='Average', ascending=False, inplace=True)
+            k_overs = ridge_overs.head(1)['Alpha'].values[0]
+
+            # Train the model with the best alpha value
+            next_overs = linear_model.Ridge(alpha=k_overs * 10)
+            next_overs.fit(X_train_overs, y_train_overs)
+            if len(X_train_overs['Overs Bowled']) > 1:
+                sd_next_overs = stdev(X_train_overs['Overs Bowled'].astype('float'))
+            else:
+                sd_next_overs = 0.0
+
+            # Predict next runs given
+            X_runs_given = player_new[player_new.columns[11:21]]
+            y_runs_given = player_new[player_new.columns[24:25]]
+            X_train_runs_given, X_test_runs_given, y_train_runs_given, y_test_runs_given = train_test_split(
+                X_runs_given,
+                y_runs_given,
+                test_size=0.2,
+                random_state=123)
+            ridge_runs_given = pd.DataFrame()
+
+            # Iterate over a range of alpha values
+            for j in range(0, 101):
+                points_runs_given = linear_model.Ridge(alpha=j).fit(X_train_runs_given, y_train_runs_given)
+                ridge_df_runs_given = pd.DataFrame({'Alpha': pd.Series(j), 'Train': pd.Series(
+                    points_runs_given.score(X_train_runs_given, y_train_runs_given)), 'Test': pd.Series(
+                    points_runs_given.score(X_test_runs_given, y_test_runs_given))})
+                ridge_runs_given = ridge_runs_given._append(ridge_df_runs_given)
+
+            # Calculate average score
+            ridge_runs_given['Average'] = ridge_runs_given[['Train', 'Test']].mean(axis=1)
+
+            ridge_runs_given.sort_values(by='Average', ascending=False, inplace=True)
+            k_runs_given = ridge_runs_given.head(1)['Alpha'].values[0]
+
+            # Train the model with the best alpha value
+            next_runs_given = linear_model.Ridge(alpha=k_runs_given * 10)
+            next_runs_given.fit(X_train_runs_given, y_train_runs_given)
+            if len(X_train_runs_given) > 1:
+                sd_next_runs_given = stdev(X_train_runs_given['Runs Given'].astype('float'))
+            else:
+                sd_next_runs_given = 0.0
+
+            X_wkts = player_new[player_new.columns[11:21]]
+            y_wkts = player_new[player_new.columns[25:26]]
+            X_train_wkts, X_test_wkts, y_train_wkts, y_test_wkts = train_test_split(X_wkts, y_wkts, test_size=0.2,
+                                                                                    random_state=123)
+            ridge_wkts = pd.DataFrame()
+            # Iterate over a range of alpha values
+            for j in range(0, 101):
+                points_wkts = linear_model.Ridge(alpha=j).fit(X_train_wkts, y_train_wkts)
+                ridge_df_wkts = pd.DataFrame(
+                    {'Alpha': pd.Series(j), 'Train': pd.Series(points_wkts.score(X_train_wkts, y_train_wkts)),
+                     'Test': pd.Series(points_wkts.score(X_test_wkts, y_test_wkts))})
+                ridge_wkts = ridge_wkts._append(ridge_df_wkts)
+
+            # Calculate average score
+            ridge_wkts['Average'] = ridge_wkts[['Train', 'Test']].mean(axis=1)
+            ridge_wkts.sort_values(by='Average', ascending=False, inplace=True)
+            k_wkts = ridge_wkts.head(1)['Alpha'].values[0]
+            #
+            # Train the model with the best alpha value
+            next_wkts = linear_model.Ridge(alpha=k_wkts * 10)
+            next_wkts.fit(X_train_wkts, y_train_wkts)
+            if len(X_train_wkts) > 1:
+                sd_next_wkts = stdev(X_train_wkts['Wickets Taken'].astype('float'))
+            else:
+                sd_next_wkts = 0.0
+
+            # Get the latest data for the player
+            latest = player_data.groupby('Player').tail(1)
+
+            latest.loc[:, 'next_runs'] = next_runs.predict(latest[latest.columns[2:11]])
+            latest.loc[:, 'next_balls'] = next_balls.predict(latest[latest.columns[2:11]])
+            latest.loc[:, 'next_overs'] = next_overs.predict(latest[latest.columns[11:21]])
+            latest.loc[:, 'next_runs_given'] = next_runs_given.predict(latest[latest.columns[11:21]])
+            latest.loc[:, 'next_wkts'] = next_wkts.predict(latest[latest.columns[11:21]])
+
+            latest = latest.copy()
+            latest.loc[:, 'next_runs_ll_95'], latest.loc[:, 'next_runs_ul_95'] = latest[
+                                                                                     'next_runs'] - scipy.stats.norm.ppf(
+                .95) * (sd_next_runs / math.sqrt(len(X_train_runs))), latest['next_runs'] + scipy.stats.norm.ppf(
+                .95) * (sd_next_runs / math.sqrt(len(X_train_runs)))
+            latest.loc[:, 'next_balls_ll_95'], latest.loc[:, 'next_balls_ul_95'] = latest[
+                                                                                       'next_balls'] - scipy.stats.norm.ppf(
+                .95) * (sd_next_balls / math.sqrt(len(X_train_balls))), latest['next_balls'] + scipy.stats.norm.ppf(
+                .95) * (sd_next_balls / math.sqrt(len(X_train_balls)))
+            latest.loc[:, 'next_overs_ll_95'], latest.loc[:, 'next_overs_ul_95'] = latest[
+                                                                                       'next_overs'] - scipy.stats.norm.ppf(
+                .95) * (sd_next_overs / math.sqrt(len(X_train_overs))), latest['next_overs'] + scipy.stats.norm.ppf(
+                .95) * (sd_next_overs / math.sqrt(len(X_train_overs)))
+            latest.loc[:, 'next_runs_given_ll_95'], latest.loc[:, 'next_runs_given_ul_95'] = latest[
+                                                                                                 'next_runs_given'] - scipy.stats.norm.ppf(
+                .95) * (sd_next_runs_given / math.sqrt(len(X_train_runs_given))), latest[
+                                                                                                 'next_runs_given'] + scipy.stats.norm.ppf(
+                .95) * (sd_next_runs_given / math.sqrt(len(X_train_runs_given)))
+            latest.loc[:, 'next_wkts_ll_95'], latest.loc[:, 'next_wkts_ul_95'] = latest[
+                                                                                     'next_wkts'] - scipy.stats.norm.ppf(
+                .95) * (sd_next_wkts / math.sqrt(len(X_train_wkts))), latest['next_wkts'] + scipy.stats.norm.ppf(
+                .95) * (sd_next_wkts / math.sqrt(len(X_train_wkts)))
+            models = models._append(latest)
+
+    models['next_runs_given'] = np.where(models['next_overs'] > 10, models['next_runs_given'] / models['next_overs'] * 10,
+                                         models['next_runs_given'])
+    models['next_runs_given_ll_95'] = np.where(models['next_overs'] > 10,
+                                               models['next_runs_given_ll_95'] / models['next_overs'] * 10,
+                                               models['next_runs_given_ll_95'])
+    models['next_runs_given_ul_95'] = np.where(models['next_overs'] > 10,
+                                               models['next_runs_given_ul_95'] / models['next_overs'] * 10,
+                                               models['next_runs_given_ul_95'])
+
+    # Limiting next_overs to a maximum of 4
+    models['next_overs'] = np.where(models['next_overs'] > 10, 10, models['next_overs'])
+    models['next_overs_ll_95'] = np.where(models['next_overs_ll_95'] > 10, 10, models['next_overs_ll_95'])
+    models['next_overs_ul_95'] = np.where(models['next_overs_ul_95'] > 10, 10, models['next_overs_ul_95'])
+
+    # Adjusting next_runs based on next_balls
+    models['next_runs'] = np.where(models['next_balls'] < 0, 0, models['next_runs'])
+    models['next_runs_ll_95'] = np.where(models['next_balls'] < 0, 0, models['next_runs_ll_95'])
+    models['next_runs_ul_95'] = np.where(models['next_balls'] < 0, 0, models['next_runs_ul_95'])
+
+    # Setting next_runs to a minimum of 1
+    models['next_runs'] = np.where(models['next_runs'] < 0, 1, models['next_runs'])
+    models['next_runs_ll_95'] = np.where(models['next_runs_ll_95'] < 0, 1, models['next_runs_ll_95'])
+    models['next_runs_ul_95'] = np.where(models['next_runs_ul_95'] < 0, 1, models['next_runs_ul_95'])
+
+    # Adjusting next_runs based on next_balls if next_balls > 100
+    models['next_runs'] = np.where(models['next_balls'] > 60, models['next_runs'] / models['next_balls'] * 60,
+                                   models['next_runs'])
+    models['next_runs_ll_95'] = np.where(models['next_balls'] > 60,
+                                         models['next_runs_ll_95'] / models['next_balls'] * 60,
+                                         models['next_runs_ll_95'])
+    models['next_runs_ul_95'] = np.where(models['next_balls'] > 100,
+                                         models['next_runs_ul_95'] / models['next_balls'] * 60,
+                                         models['next_runs_ul_95'])
+
+    # Limiting next_balls to a maximum of 5
+    models['next_balls'] = np.where(models['next_balls'] > 60, 60, models['next_balls'])
+    models['next_balls_ll_95'] = np.where(models['next_balls_ll_95'] > 60, 60, models['next_balls_ll_95'])
+    models['next_balls_ul_95'] = np.where(models['next_balls_ul_95'] > 60, 60, models['next_balls_ul_95'])
+
+    # Setting next_balls to a minimum of 1
+    models['next_balls'] = np.where(models['next_balls'] < 0, 1, models['next_balls'])
+    models['next_balls_ll_95'] = np.where(models['next_balls_ll_95'] < 0, 1, models['next_balls_ll_95'])
+    models['next_balls_ul_95'] = np.where(models['next_balls_ul_95'] < 0, 1, models['next_balls_ul_95'])
+
+    # Setting next_wkts to a minimum of 1
+    models['next_wkts'] = np.where(models['next_wkts'] < 0, 0, models['next_wkts'])
+    models['next_wkts_ll_95'] = np.where(models['next_wkts_ll_95'] < 0, 0, models['next_wkts_ll_95'])
+    models['next_wkts_ul_95'] = np.where(models['next_wkts_ul_95'] < 0, 0, models['next_wkts_ul_95'])
+
+    # Rounding values to 0 decimal places
+    models['next_runs'] = round(models['next_runs'], 0)
+    models['next_runs_ll_95'] = round(models['next_runs_ll_95'], 0)
+    models['next_runs_ul_95'] = round(models['next_runs_ul_95'], 0)
+    models['next_balls'] = round(models['next_balls'], 0)
+    models['next_balls_ll_95'] = round(models['next_balls_ll_95'], 0)
+    models['next_balls_ul_95'] = round(models['next_balls_ul_95'], 0)
+
+    models['next_wkts'] = round(models['next_wkts'], 0)
+    models['next_wkts_ll_95'] = round(models['next_wkts_ll_95'], 0)
+    models['next_wkts_ul_95'] = round(models['next_wkts_ul_95'], 0)
+
+    models['next_runs_given'] = round(models['next_runs_given'], 0)
+    models['next_runs_given_ll_95'] = round(models['next_runs_given_ll_95'], 0)
+    models['next_runs_given_ul_95'] = round(models['next_runs_given_ul_95'], 0)
+
+    models['next_overs'] = round(models['next_overs'], 0)
+    models['next_overs_ll_95'] = round(models['next_overs_ll_95'], 0)
+    models['next_overs_ul_95'] = round(models['next_overs_ul_95'], 0)
     models.to_excel('modelODI.xlsx')
     merged_df = pd.merge(models, playerData, on='Player', how='left')
     merged_df.to_excel('mergedODI.xlsx')
-
-
 def playing_eleven_ODI():
     merged_df = pd.read_excel('mergedODI.xlsx')
     batsman_data = merged_df[merged_df['Role'] == 'Batter']
@@ -593,8 +586,6 @@ def playing_eleven_ODI():
     wicketK = wicketK_data.sort_values(by='next_runs', ascending=False).iloc[:1]
     playing_eleven = pd.concat([batsman, allrounder, wicketK, bowler])
     return playing_eleven
-
-
 def predict_and_result_TEST(combined_players):
     final_data = pd.read_excel("Test_data_scrapped.xlsx")
     playerData = pd.read_excel("TESTImage.xlsx")
@@ -859,8 +850,6 @@ def predict_and_result_TEST(combined_players):
     merged_df = pd.merge(models, playerData, on='Player', how='left')
     merged_df.to_excel('mergedTEST.xlsx')
     # print('successfully done')
-
-
 def playing_eleven_TEST():
     merged_df = pd.read_excel('mergedTEST.xlsx')
     num_rows = len(merged_df)
@@ -883,8 +872,6 @@ def playing_eleven_TEST():
     wicketK = wicketK_data.sort_values(by='next_runs', ascending=False).iloc[:1]
     playing_eleven = pd.concat([batsman, allrounder, wicketK, bowler])
     return playing_eleven
-
-
 def predict_and_result_T20(combined_players):
     final_data = pd.read_excel("T20_data_scrapped.xlsx")
     playerData = pd.read_excel("T20Image.xlsx")
@@ -1093,29 +1080,29 @@ def predict_and_result_T20(combined_players):
     models['next_overs_ul_95'] = np.where(models['next_overs_ul_95'] > 4, 4, models['next_overs_ul_95'])
 
     # Adjusting next_runs based on next_balls
-    models['next_runs'] = np.where(models['next_balls'] < 0, 0, models['next_runs'])
-    models['next_runs_ll_95'] = np.where(models['next_balls'] < 0, 0, models['next_runs_ll_95'])
-    models['next_runs_ul_95'] = np.where(models['next_balls'] < 0, 0, models['next_runs_ul_95'])
+    models['next_runs'] = np.where(models['next_balls'] < 0, 10, models['next_runs'])
+    models['next_runs_ll_95'] = np.where(models['next_balls'] < 0, 12, models['next_runs_ll_95'])
+    models['next_runs_ul_95'] = np.where(models['next_balls'] < 0, 14, models['next_runs_ul_95'])
 
     # Setting next_runs to a minimum of 1
-    models['next_runs'] = np.where(models['next_runs'] < 0, 1, models['next_runs'])
-    models['next_runs_ll_95'] = np.where(models['next_runs_ll_95'] < 0, 1, models['next_runs_ll_95'])
-    models['next_runs_ul_95'] = np.where(models['next_runs_ul_95'] < 0, 1, models['next_runs_ul_95'])
+    models['next_runs'] = np.where(models['next_runs'] < 0, 11, models['next_runs'])
+    models['next_runs_ll_95'] = np.where(models['next_runs_ll_95'] < 0, 12, models['next_runs_ll_95'])
+    models['next_runs_ul_95'] = np.where(models['next_runs_ul_95'] < 0, 13, models['next_runs_ul_95'])
 
     # Adjusting next_runs based on next_balls if next_balls > 100
-    models['next_runs'] = np.where(models['next_balls'] > 100, models['next_runs'] / models['next_balls'] * 5,
+    models['next_runs'] = np.where(models['next_balls'] > 24, models['next_runs'] / models['next_balls'] * 24,
                                    models['next_runs'])
-    models['next_runs_ll_95'] = np.where(models['next_balls'] > 100,
-                                         models['next_runs_ll_95'] / models['next_balls'] * 5,
+    models['next_runs_ll_95'] = np.where(models['next_balls'] > 24,
+                                         models['next_runs_ll_95'] / models['next_balls'] * 24,
                                          models['next_runs_ll_95'])
-    models['next_runs_ul_95'] = np.where(models['next_balls'] > 100,
-                                         models['next_runs_ul_95'] / models['next_balls'] * 5,
+    models['next_runs_ul_95'] = np.where(models['next_balls'] > 24,
+                                         models['next_runs_ul_95'] / models['next_balls'] * 24,
                                          models['next_runs_ul_95'])
 
     # Limiting next_balls to a maximum of 5
-    models['next_balls'] = np.where(models['next_balls'] > 100, 5, models['next_balls'])
-    models['next_balls_ll_95'] = np.where(models['next_balls_ll_95'] > 100, 5, models['next_balls_ll_95'])
-    models['next_balls_ul_95'] = np.where(models['next_balls_ul_95'] > 100, 5, models['next_balls_ul_95'])
+    models['next_balls'] = np.where(models['next_balls'] > 24, 24, models['next_balls'])
+    models['next_balls_ll_95'] = np.where(models['next_balls_ll_95'] > 24, 24, models['next_balls_ll_95'])
+    models['next_balls_ul_95'] = np.where(models['next_balls_ul_95'] > 24, 24, models['next_balls_ul_95'])
 
     # Setting next_balls to a minimum of 1
     models['next_balls'] = np.where(models['next_balls'] < 0, 1, models['next_balls'])
@@ -1124,8 +1111,8 @@ def predict_and_result_T20(combined_players):
 
     # Setting next_wkts to a minimum of 1
     models['next_wkts'] = np.where(models['next_wkts'] < 0, 0, models['next_wkts'])
-    models['next_wkts_ll_95'] = np.where(models['next_wkts_ll_95'] < 0, 1, models['next_wkts_ll_95'])
-    models['next_wkts_ul_95'] = np.where(models['next_wkts_ul_95'] < 0, 1, models['next_wkts_ul_95'])
+    models['next_wkts_ll_95'] = np.where(models['next_wkts_ll_95'] < 0, 0, models['next_wkts_ll_95'])
+    models['next_wkts_ul_95'] = np.where(models['next_wkts_ul_95'] < 0, 0, models['next_wkts_ul_95'])
 
 
     models['next_runs'] = round(models['next_runs'], 0)
@@ -1151,8 +1138,6 @@ def predict_and_result_T20(combined_players):
     merged_df = pd.merge(models, playerData, on='Player', how='left')
     merged_df.to_excel('mergedT20.xlsx')
     # print('successfully done')
-
-
 def playing_eleven_T20():
     merged_df = pd.read_excel('mergedT20.xlsx')
     num_rows = len(merged_df)
